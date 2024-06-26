@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, parsers
 from .models import BlogPost, Comment, Like, Forum, ForumComment, ForumTopic
 from .serializers import BlogPostSerializer, CommentSerializer, LikeSerializer, ForumSerializer, ForumTopicSerializer, ForumCommentSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
 
@@ -11,6 +12,17 @@ class BlogPostListCreateView(generics.ListCreateAPIView):
     queryset = BlogPost.objects.all()
     serializer_class = BlogPostSerializer
     parser_classes = (parsers.MultiPartParser, parsers.JSONParser)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        response_data = {
+            'message': "Blog posts retrieved successfully.",
+            'statusCode': status.HTTP_200_OK,
+            'data': serializer.data,
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -81,22 +93,52 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class LikeListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Like.objects.all()
     serializer_class = LikeSerializer
 
+    
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        # Get the user making the request
+        user = self.request.user
+
+        print("user_id =", user.id)
+
+        # Check if the user is authenticated
+        if not user.is_authenticated:
+            response_data = {
+                'message': "User must be authenticated to like a post.",
+                'status_code': status.HTTP_401_UNAUTHORIZED,
+            }
+            return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Get the post ID from the request data
+        post_id = request.data.get('post')
+        print("post_id =", post_id)
+
+        # Check if the user has already liked the post
+        if Like.objects.filter(post=post_id, user=user).exists():
+            response_data = {
+                'message': "User has already liked this post.",
+                'status_code': status.HTTP_400_BAD_REQUEST,
+            }
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+
+        # Assuming your Like model has a 'post' and 'user' field
+        like_data = {'post': post_id, 'user': user.id}
+        serializer = self.get_serializer(data=like_data)
+
         if serializer.is_valid():
             serializer.save()
             response_data = {
                 'message': "Like created successfully.",
-                'statusCode': status.HTTP_201_CREATED,
+                'status_code': status.HTTP_201_CREATED,
             }
             return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             response_data = {
                 'message': "Failed to create like.",
-                'statusCode': status.HTTP_400_BAD_REQUEST,
+                'status_code': status.HTTP_400_BAD_REQUEST,
                 'errors': serializer.errors,
             }
             return Response(response_data, status=status.HTTP_400_BAD_REQUEST)

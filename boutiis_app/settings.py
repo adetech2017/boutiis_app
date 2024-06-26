@@ -49,17 +49,19 @@ INSTALLED_APPS = [
     'donation',
     'health',
     'reciation',
+    'corsheaders',
+    'forum'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'boutiis_app.urls'
@@ -81,8 +83,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'boutiis_app.wsgi.application'
-
 ASGI_APPLICATION = "boutiis_app.asgi.application"
+#ASGI_APPLICATION = 'chat.routing.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -128,7 +130,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-AUTH_USER_MODEL = 'core.CustomUser'
+AUTH_USER_MODEL = 'core.User'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -222,8 +224,8 @@ SESSION_CACHE_ALIAS = 'default'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('localhost', 6379)],
-        },
+        # 'CONFIG': {
+        #     "hosts": [('127.0.0.1', 6379)],
+        # },
     },
 }

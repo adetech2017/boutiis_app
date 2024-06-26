@@ -1,12 +1,11 @@
 from rest_framework import serializers
+
+from core.serializers import CustomUserSerializer
 from .models import BlogPost, Forum, ForumTopic, ForumComment, Comment, Like
 
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = '__all__'
+
 
 
 class ForumCommentSerializer(serializers.ModelSerializer):
@@ -15,8 +14,21 @@ class ForumCommentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CommentSerializer(serializers.ModelSerializer):
+    author = CustomUserSerializer()
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = '__all__'
+
+
 class BlogPostSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
+    post_likes = LikeSerializer(many=True, read_only=True)
 
     class Meta:
         model = BlogPost
@@ -37,10 +49,7 @@ class BlogPostSerializer(serializers.ModelSerializer):
         return blog_post
 
 
-class LikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Like
-        fields = '__all__'
+
 
 
 class ForumSerializer(serializers.ModelSerializer):

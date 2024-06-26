@@ -1,46 +1,47 @@
-from rest_framework import generics
-from .models import ChatRoom, Message
-from .serializers import ChatRoomSerializer, MessageSerializer
-from django.contrib.auth import get_user_model
-from django.shortcuts import render
+from rest_framework import generics, status
+from rest_framework.response import Response
+from .models import Message, PrivateRoom
+from .serializers import MessageSerializer, PrivateRoomSerializer
 
 
-class ChatRoomListCreateView(generics.ListCreateAPIView):
-    serializer_class = ChatRoomSerializer
 
-    def get_queryset(self):
-        user = self.request.user  # Get the authenticated user
-        return user.chat_rooms.all()  # Filter chat rooms by the user
 
-    def perform_create(self, serializer):
-        user = self.request.user  # Get the authenticated user
-        serializer.save(users=[user])
 
-class ChatRoomDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = ChatRoomSerializer
 
-    def get_queryset(self):
-        user = self.request.user  # Get the authenticated user
-        return user.chat_rooms.all()  # Filter chat rooms by the user
-
-class MessageListCreateView(generics.ListCreateAPIView):
+class MessageView(generics.CreateAPIView):
     serializer_class = MessageSerializer
 
-    def get_queryset(self):
-        user = self.request.user  # Get the authenticated user
-        return Message.objects.filter(chat_room__users=user)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-class MessageDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = MessageSerializer
+        # Assuming user is authenticated and attaching user to message
+        user = self.request.user
+        serializer.save(user=user)
 
-    def get_queryset(self):
-        user = self.request.user  # Get the authenticated user
-        return Message.objects.filter(chat_room__users=user)
-
-
-def index(request):
-    return render(request, "chat/index.html")
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-def room(request, room_name):
-    return render(request, "chat/room.html", {"room_name": room_name})
+
+class PrivateRoomView(generics.CreateAPIView):
+    serializer_class = PrivateRoomSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Assuming user is authenticated and attaching user1 to room
+        user1 = self.request.user
+        user2 = serializer.validated_data.get('user2')
+
+        # Check if a room already exists between user1 and user2
+        existing_room = PrivateRoom.objects.filter(user1=user1, user2=user2).first() \
+                        or PrivateRoom.objects.filter(user1=user2, user2=user1).first()
+
+        if existing_room:
+            return Response(PrivateRoomSerializer(existing_room).data, status=status.HTTP_200_OK)
+
+        # If no existing room, create a new one
+        room = serializer.save(user1=user1)
+        
+        return Response(PrivateRoomSerializer(room).data, status=status.HTTP_201_CREATED)

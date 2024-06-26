@@ -18,14 +18,14 @@ urlpatterns = [
     path('likes/<int:pk>/', views.LikeDetailView.as_view(), name='like-detail'),
 
     # Forum URLs
-    path('forums/', views.ForumListCreateView.as_view(), name='forum-list-create'),
-    path('forums/<int:pk>/', views.ForumDetailView.as_view(), name='forum-detail'),
+    #path('forums/', views.ForumListCreateView.as_view(), name='forum-list-create'),
+    #path('forums/<int:pk>/', views.ForumDetailView.as_view(), name='forum-detail'),
 
     # ForumTopic URLs
-    path('forumtopics/', views.ForumTopicListCreateView.as_view(), name='forumtopic-list-create'),
-    path('forumtopics/<int:pk>/', views.ForumTopicDetailView.as_view(), name='forumtopic-detail'),
+    #path('forumtopics/', views.ForumTopicListCreateView.as_view(), name='forumtopic-list-create'),
+    #path('forumtopics/<int:pk>/', views.ForumTopicDetailView.as_view(), name='forumtopic-detail'),
 
     # ForumComment URLs
-    path('forumcomments/', views.ForumCommentListCreateView.as_view(), name='forumcomment-list-create'),
-    path('forumcomments/<int:pk>/', views.ForumCommentDetailView.as_view(), name='forumcomment-detail'),
+    #path('forumcomments/', views.ForumCommentListCreateView.as_view(), name='forumcomment-list-create'),
+    #path('forumcomments/<int:pk>/', views.ForumCommentDetailView.as_view(), name='forumcomment-detail'),
 ]

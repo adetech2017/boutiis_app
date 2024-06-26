@@ -28,8 +28,12 @@ urlpatterns = [
     path('api/', include('core.urls')),
     path('api/', include('chat.urls')),
     path('api/', include('donation.urls')),
+    path('api/', include('forum.urls')),
+    #path("api/", include("live_chat.urls")),
 
-    path('', include('chat.urls')),
+    
+
+    #path('', include('chat.urls')),
 
     # Include API documentation URL
     path('swagger(<format>\.json|\.yaml)', schema_view.without_ui(cache_timeout=0), name='schema-json'),

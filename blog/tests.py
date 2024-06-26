@@ -1,14 +1,14 @@
 from django.test import TestCase
 from .models import BlogPost, Comment, Forum, Like
 from .serializers import BlogPostSerializer, CommentSerializer, ForumTopicSerializer
-from core.models import CustomUser
+from core.models import User
 from rest_framework.test import APITestCase
 from django.urls import reverse
 
 
 class BlogPostSerializerTest(TestCase):
     def test_valid_data(self):
-        user = CustomUser.objects.create(username='testuser', password='password123')
+        user = User.objects.create(username='testuser', password='password123')
         data = {
             'title': 'Test Blog Post',
             'content': 'This is a test blog post.',
@@ -29,7 +29,7 @@ class BlogPostSerializerTest(TestCase):
 
 class CommentSerializerTest(TestCase):
     def test_valid_data(self):
-        user = CustomUser.objects.create(username='testuser', password='password123')
+        user = User.objects.create(username='testuser', password='password123')
         blog_post = BlogPost.objects.create(title='Test Blog Post', content='This is a test blog post.', author=user)
         data = {
             'post': blog_post.id,
@@ -71,7 +71,7 @@ class ForumTopicSerializerTest(TestCase):
 class LikeViewsTest(APITestCase):
     def setUp(self):
         # Create a user for the like
-        self.user = CustomUser.objects.create(username='testuser', password='password123')
+        self.user = User.objects.create(username='testuser', password='password123')
         
         # Create a blog post that the like will be associated with
         self.blog_post = BlogPost.objects.create(
@@ -94,7 +94,7 @@ class LikeViewsTest(APITestCase):
 class ForumTopicViewsTest(APITestCase):
     def setUp(self):
         # Create a user for testing
-        self.user = CustomUser.objects.create(username='testuser', password='password123')
+        self.user = User.objects.create(username='testuser', password='password123')
 
     def test_create_forum_topic(self):
         url = reverse('forumtopic-list-create')
@@ -109,7 +109,7 @@ class ForumTopicViewsTest(APITestCase):
 
 class LikeModelTest(TestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create(username='testuser', password='password123')
+        self.user = User.objects.create(username='testuser', password='password123')
 
         # Create a blog post
         self.blog_post = BlogPost.objects.create(

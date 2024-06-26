@@ -1,29 +1,22 @@
 from django.db import models
-from core.models import CustomUser
+from core.models import User
 
 
 
-class ChatRoom(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    users = models.ManyToManyField(CustomUser, related_name='chat_rooms')
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.name
+class PrivateRoom(models.Model):
+    user1 = models.ForeignKey(User, related_name='user1_rooms', on_delete=models.CASCADE)
+    user2 = models.ForeignKey(User, related_name='user2_rooms', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('user1', 'user2')
 
 
 class Message(models.Model):
-    chat_room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE)
-    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    room = models.ForeignKey(PrivateRoom, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.sender.username} in {self.chat_room.name}'
-
-    class Meta:
-        ordering = ['timestamp']
-
-
-
-
+        return f'{self.user.username}: {self.content}'
