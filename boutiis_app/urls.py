@@ -29,7 +29,7 @@ urlpatterns = [
     path('api/', include('chat.urls')),
     path('api/', include('donation.urls')),
     path('api/', include('forum.urls')),
-    #path("api/", include("live_chat.urls")),
+    path("api/", include("reciation.urls")),
 
     
 
