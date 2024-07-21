@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Message, PrivateRoom
 from django.contrib.auth.models import User
-from core.serializers import UserSerializer
+from core.serializers import CustomUserSerializer, UserSerializer
 from rest_framework.exceptions import ValidationError
 
 
@@ -37,3 +37,18 @@ class PrivateRoomSerializer(serializers.ModelSerializer):
         room.save()
         return room
 
+
+
+# class CustomUserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ['id', 'username', 'first_name', 'last_name', 'email','phone_number','date_of_birth','occupation','bio','profile_picture','is_online']
+
+
+class PrivateRoomDetailSerializer(serializers.ModelSerializer):
+    user1 = CustomUserSerializer()
+    user2 = CustomUserSerializer()
+
+    class Meta:
+        model = PrivateRoom
+        fields = ['id', 'user1', 'user2']
