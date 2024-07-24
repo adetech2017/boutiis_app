@@ -6,18 +6,9 @@ from .models import IcHadithArabic, IcHadithEnglish, HadithBooksArabic, HadithBo
 
 
 
-class HadithBooksArabicSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HadithBooksArabic
-        fields = ['id', 'book', 'book_number', 'source']
-
-class HadithBooksEnglishSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HadithBooksEnglish
-        fields = ['id', 'book', 'book_number', 'source']
 
 class IcHadithArabicSerializer(serializers.ModelSerializer):
-    book = HadithBooksArabicSerializer(read_only=True)
+    book = serializers.StringRelatedField(read_only=True)
     book_id = serializers.PrimaryKeyRelatedField(queryset=HadithBooksArabic.objects.all(), write_only=True)
 
     class Meta:
@@ -29,8 +20,9 @@ class IcHadithArabicSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Hadith number must be numeric.")
         return value
 
+
 class IcHadithEnglishSerializer(serializers.ModelSerializer):
-    book = HadithBooksEnglishSerializer(read_only=True)
+    book = serializers.StringRelatedField(read_only=True)
     book_id = serializers.PrimaryKeyRelatedField(queryset=HadithBooksEnglish.objects.all(), write_only=True)
 
     class Meta:
@@ -41,3 +33,29 @@ class IcHadithEnglishSerializer(serializers.ModelSerializer):
         if not value.isdigit():
             raise serializers.ValidationError("Hadith number must be numeric.")
         return value
+
+
+class HadithBooksArabicSerializer(serializers.ModelSerializer):
+    hadiths = serializers.SerializerMethodField()
+
+    class Meta:
+        model = HadithBooksArabic
+        fields = ['id', 'book', 'book_number', 'source', 'hadiths']
+
+    def get_hadiths(self, obj):
+        hadiths = IcHadithArabic.objects.filter(book=obj)
+        serializer = IcHadithArabicSerializer(hadiths, many=True)
+        return serializer.data
+
+
+class HadithBooksEnglishSerializer(serializers.ModelSerializer):
+    hadiths = serializers.SerializerMethodField()
+
+    class Meta:
+        model = HadithBooksEnglish
+        fields = ['id', 'book', 'book_number', 'source', 'hadiths']
+
+    def get_hadiths(self, obj):
+        hadiths = IcHadithEnglish.objects.filter(book=obj)
+        serializer = IcHadithEnglishSerializer(hadiths, many=True)
+        return serializer.data
